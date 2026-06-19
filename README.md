@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/29124620/README.md)
 # 🦘 Kangaroo
 
 > **Automated network pivoting via Metasploit/Meterpreter — recon, route, SOCKS, done.**
@@ -80,7 +79,7 @@ chmod +x kangaroo.sh
 | `-v SOCKS_VERSION` | SOCKS version: `4a` or `5` | `5` |
 | `-o OUTPUT_RC` | Output resource script path | `kangaroo_<date>.rc` |
 | `-P PROXYCHAINS_CFG` | Path to proxychains config | `/etc/proxychains4.conf` |
-| `-t TARGET_PORTS` | Comma-separated ports to scan | `21,22,23,25,80,443,445,`<br>`3306,3389,5432,5900,6379,8080,8443` |
+| `-t TARGET_PORTS` | Comma-separated **numeric** ports to scan (validated) | `21,22,23,25,80,443,445,`<br>`3306,3389,5432,5900,6379,8080,8443` |
 | `-T SCAN_THREADS` | Portscan threads (1–50) | `20` |
 | `-S` | Skip recon phase, pivot directly | — |
 | `-x` | Launch `msfconsole` with the `.rc` automatically | — |
@@ -138,6 +137,8 @@ During Phase 0, Kangaroo scans the internal subnet and displays discovered hosts
 
 The selected target is embedded in the generated `.rc` with ready-to-use examples.
 
+> **Note:** the selection prompt has a 60-second timeout — if no TTY is available (pipes, CI) it defaults to option `0` (no fixed target) and continues automatically.
+
 ---
 
 ## Generated resource script
@@ -153,6 +154,8 @@ use post/multi/manage/autoroute    → adds the internal route
 use post/multi/manage/autoroute    → prints active routes
 use auxiliary/server/socks_proxy   → starts SOCKS5 on 127.0.0.1:1080
 jobs -l                            → confirms the proxy job is running
+print_good  "Kangaroo — Pivoting activo"   → status via msfconsole API
+print_status "proxychains nmap ..."         → usage hint in msf console
 ```
 
 ---
@@ -203,6 +206,7 @@ Kangaroo validates all inputs before doing anything:
 | `PIVOT_NETWORK` | Valid CIDR — octets 0–255, mask 1–32 |
 | `SOCKS_PORT` | Integer between 1–65535 |
 | `SOCKS_VERSION` | Must be `4a` or `5` |
+| `TARGET_PORTS` | Non-empty, digits and commas only — e.g. `22,80,443` |
 | `SCAN_THREADS` | Integer between 1–50 |
 | `OUTPUT_RC` directory | Must exist and be writable |
 
